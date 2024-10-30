@@ -22,6 +22,8 @@
 (define-constant ERR-NOT-A-WINNER (err u117))
 (define-constant ERR-REFUND-FAILED (err u118))
 (define-constant ERR-REFUND-PROCESSING (err u119))
+(define-constant ERR-INVALID-DESCRIPTION (err u120))
+(define-constant ERR-INVALID-STAKE-AMOUNT (err u121))
 
 ;; Data variables
 (define-data-var next-betting-event-id uint u0)
@@ -169,6 +171,7 @@
     (
       (new-betting-event-id (var-get next-betting-event-id))
     )
+    (asserts! (> (len event-description) u0) ERR-INVALID-DESCRIPTION)
     (asserts! (> (len betting-options) u1) ERR-INVALID-OPTION-COUNT)
     (asserts! (> betting-close-height block-height) ERR-INVALID-CLOSE-HEIGHT)
     (asserts! (is-some (index-of (var-get bet-types) bet-type)) ERR-INVALID-BET-TYPE)
@@ -198,6 +201,7 @@
       (bet (unwrap! (get-bet betting-event-id) ERR-DOES-NOT-EXIST))
       (existing-stake (default-to { chosen-option: u0, staked-amount: u0 } (get-stake betting-event-id tx-sender)))
     )
+    (asserts! (> stake-amount u0) ERR-INVALID-STAKE-AMOUNT)
     (asserts! (get is-betting-open bet) ERR-BET-CLOSED)
     (asserts! (>= (len (get betting-options bet)) chosen-option) ERR-INVALID-OPTION)
     (asserts! (< block-height (get betting-close-height bet)) ERR-BET-EXPIRED)
